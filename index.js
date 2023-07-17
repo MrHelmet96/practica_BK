@@ -34,36 +34,41 @@ connection.connect((err) => {
 
 //req: es lo que llega desde el frontend (en nuestro caso Postman)
 //res: lo que le envio desde el servidor al frontend
-app.post('/api/persona', (req, res)=>{
+app.post('/api/persona', (req, res) => {
 
-    persona_a_insertar = [
-        req.body.dni,
-        req.body.nombre,
-        req.body.apellido];
-    
-    
-    $query = 'INSERT INTO persona (dni, nombre, apellido) VALUES (,,)'
+    $query = 'INSERT INTO persona (dni, nombre, apellido) VALUES (?,?,?)';
+    persona_a_insertar = [req.body.dni, req.body.nombre, req.body.apellido];
     
     connection.query($query, persona_a_insertar, function(err, rows) {
         if (err) {
-            res.send(err);
+            res.status(500).send(err);
             return;
         } else {
             res.send("se creo la persona" + req.body.nombre + req.body.apellido);
         }
 
-    })
-
-   // res.send("crear");
+    });
 });
 
-app.put('/api/persona', (req, res)=>{
-    res.send("modificar");
+app.put('/api/persona/:dni', (req, res)=>{
+    parametros = [req.body.dni, req.body.nombre, req.body.apellido, req.params.dni]
+
+    $query = 'UPDATE persona set dni = ?, nombre = ?, apellido = ? WHERE dni = ?';
+    
+    connection.query($query, parametros, function (err, rows) {
+        if (err) {
+            res.status(500).send(err);
+            return;
+        } else {
+            res.send(`se modificó la persona ${req.body.nombre} ${req.body.apellido}`);
+        }
+
+    });
 });
 
-app.delete('/api/persona', (req, res)=>{
+/*app.delete('/api/persona', (req, res)=>{
     res.send("eliminar");
-});
+}); */
 
 //fin código
 app.listen(8080, (err) => {
